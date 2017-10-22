@@ -1,45 +1,50 @@
 package ru.feeleen.server;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
+import ru.feeleen.Helpers.MyFormatter;
+
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
-import java.util.List;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 public class Server {
+    private static Logger log = Logger.getLogger(Server.class.getName());
+
     ServerSocket socket;
     public static final int PORT = 4646;
-    private static HashSet<Connection> connections = new HashSet<>();
 
-    public static void main(String argv[]) throws Exception {
-        System.out.println("serverStart");
+    private HashSet<Connection> connections = new HashSet<>();
+
+    public Server() throws IOException {
+        FileHandler fileHandler = new FileHandler("logs/JavaLog.log");
+        fileHandler.setFormatter(new MyFormatter());
+        log.addHandler(fileHandler);
+    }
+
+    public void severGo() throws Exception {
+        log.info("SERVER START");
         try (ServerSocket welcomeSocket = new ServerSocket(PORT)) {
             while (true) {
-                try  {
+                try {
                     Socket connectionSocket = welcomeSocket.accept();
+                    log.info("new Connect " + connectionSocket.getRemoteSocketAddress().toString() + "\n");
                     System.out.println("has connection");
-                    Connection connection = new Connection(connectionSocket);
+                    Connection connection = new Connection(connectionSocket, this);
                     Thread t = new Thread(connection);
                     t.start();
                     connections.add(connection);
-                } catch (Exception e){
+                } catch (Exception e) {
+                    log.severe("error connecting");
                     e.printStackTrace();
                 }
             }
         }
     }
 
-    /*private static void serverClient(Socket socket) throws Exception {
-        BufferedReader inFromClient = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        DataOutputStream outToClient = new DataOutputStream(socket.getOutputStream());
-
-        String clientSentence = inFromClient.readLine();
-
-        System.out.println("Received: " + clientSentence);
-        String capitalizedSentence = new StringBuilder(clientSentence).reverse().toString().toUpperCase() + '\n';
-
-        outToClient.writeBytes(capitalizedSentence);
-    }*/
+    public void closeConnection(Connection connection) {
+        connections.remove(connection);
+        log.info("connection: " + connection.getName() + " removed");
+    }
 }

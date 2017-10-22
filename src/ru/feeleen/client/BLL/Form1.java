@@ -9,12 +9,15 @@ import javafx.stage.Stage;
 public class Form1 extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
-            Parent root = FXMLLoader.load(getClass().getResource("../PL/page.fxml"));
-            primaryStage.setTitle("hi");
-            primaryStage.setScene(new Scene(root, 600,600));
-            primaryStage.show();
+        Parent root = FXMLLoader.load(getClass().getResource("../PL/page.fxml"));
+        primaryStage.setTitle("Reverse your STRING");
+        primaryStage.setScene(new Scene(root, 600, 600));
+        primaryStage.setMinWidth(600);
+        primaryStage.setMinHeight(500);
+        primaryStage.show();
     }
+
     public static void main(String[] arg) {
-        launch(arg);l
+        launch(arg);
     }
 }

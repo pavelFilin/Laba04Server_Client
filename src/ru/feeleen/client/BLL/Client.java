@@ -1,37 +1,44 @@
 package ru.feeleen.client.BLL;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
+import java.net.SocketException;
 
 public class Client {
-    public static final int PORT = 4646;
 
-    public static void main(String[] args) {
-        try(Socket clientSocket = new Socket("localhost", PORT)) {
-            String sentence = "Hello!";
-            String modifiedSentence;
+    private static final int PORT = 4646;
 
-            Scanner scn = new Scanner(System.in);
-            while(true){
-                sentence = scn.nextLine();
-                DataOutputStream outputServer = new DataOutputStream(clientSocket.getOutputStream());
-                BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    private DataOutputStream outputServer;
+    private BufferedReader inFromServer;
+    private Socket clientSocket;
 
-                outputServer.writeBytes(sentence + "\n");
-                modifiedSentence = inFromServer.readLine();
+    public void clientGo() throws IOException {
+        clientSocket = new Socket("localhost", PORT);
+        outputServer = new DataOutputStream(clientSocket.getOutputStream());
+        inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+    }
 
-                System.out.println("From Server" + modifiedSentence);
-            }
+    public void disconnect() throws IOException {
+        clientSocket.close();
+    }
 
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void MessengeSend(String massenge) throws IOException {
+        outputServer.writeBytes(massenge + "\n");
+    }
+
+    public String ReportOfServer() throws IOException {
+        return inFromServer.readLine();
+    }
+
+    public boolean getKeepAlive() throws SocketException {
+        return clientSocket.getKeepAlive();
+    }
+
+    public boolean isClosed() throws SocketException {
+        return clientSocket.isClosed();
     }
 
 }
